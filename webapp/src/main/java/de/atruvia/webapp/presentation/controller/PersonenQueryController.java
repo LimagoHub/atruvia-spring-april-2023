@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/personen")
-public class PersonenController {
+@RequestMapping("/v1/personen")
+public class PersonenQueryController {
 
 
     @Operation(summary = "Get a person by person id")
@@ -27,6 +27,11 @@ public class PersonenController {
             return ResponseEntity.ok(PersonDto.builder().id(id).vorname("John").nachname("Doe").build());
         return ResponseEntity.notFound().build();
     }
+
+    @Operation(summary = "Get all persons")
+    @ApiResponse(responseCode = "200", description = "Ok")
+    @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content )
+    @ApiResponse(responseCode = "500", description = "Interner Serverfehler", content = @Content)
 
     @GetMapping(path="", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Iterable<PersonDto>> findeAlle(
@@ -44,4 +49,13 @@ public class PersonenController {
 
         return ResponseEntity.ok(personen);
     }
+
+
+
+//    @PostMapping("/functions/toupper")
+//    public PersonDto toUpper(@RequestBody  PersonDto dto) {
+//        dto.setNachname(dto.getNachname().toUpperCase());
+//        return dto;
+//    }
+
 }
