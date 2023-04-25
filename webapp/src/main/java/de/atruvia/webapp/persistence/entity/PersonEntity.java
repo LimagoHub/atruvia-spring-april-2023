@@ -3,10 +3,8 @@ package de.atruvia.webapp.persistence.entity;
 import lombok.*;
 import org.hibernate.Hibernate;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Getter
@@ -30,6 +28,9 @@ public class PersonEntity {
 
     @Column(length = 30, nullable = false)
     private String nachname;
+
+//    @Version
+//    private LocalDateTime lastUpdate;
 
     @Override
     public boolean equals(final Object o) {
