@@ -18,4 +18,7 @@ public interface PersonenRepository extends CrudRepository<PersonEntity, String>
 
     @Query("select new de.atruvia.webapp.persistence.entity.TinyPerson(p.id, p.nachname) from PersonEntity p where p.nachname like :nachname")
     Iterable<TinyPerson> bcd(String nachname);
+
+    @Query("update PersonEntity p set p.vorname = :vorname where p.id = :id")
+    void updateVorname(String id, String vorname);
 }

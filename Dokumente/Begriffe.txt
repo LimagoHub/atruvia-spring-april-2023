@@ -1,22 +1,22 @@
-Inversion of Control (Dependency Injection)
+Inversion of Control (Content Dependency Injection)
 @Component
 	@Controller, @Service, @Repository
 	   @RestController
-@Scope (Prototype|Singleton)
+@Scope (prototype|singleton)
 
-@RequestScope, @SessionScope
+@RequestScope, @SessionScope // Machen nur bei Webanwendungen Sinn
 
 @Lazy
 	
 @PostConstruct @PreDestroy
 	Dreissatz beim Erzeugen 
-		1. Constructor
+		1. Constructor // Von Spring empfohlen
 		2. Setter- oder Fieldinjection
 		3. PostConstruct
 		
 	@PreDestroy nur bei Singleton sinnvoll, weil Protoype nicht verwaltet wird
 	
-@Autowired / @Value
+@Autowired (Objekten) / @Value (Werte und Strings)
 	Standard by Type
 	Im Konfliktfall by Name
 	
