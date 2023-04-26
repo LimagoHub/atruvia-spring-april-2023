@@ -8,8 +8,9 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.util.Set;
 
-@Component
+//@Component
 @Scope("singleton")
 public class Demo {
 
@@ -18,12 +19,14 @@ public class Demo {
 
 
     private final String meldung;
+    private final Set<String> mail;
 
 
     @Autowired
-    public Demo(/*@Qualifier("upper")*/ final Translator translator, @Value("${Demo.message}") final String message) {
+    public Demo(/*@Qualifier("upper")*/ final Translator translator, @Value("${Demo.message}") final String message, Set<String> mail) {
         this.translator = translator;
         this.meldung = message;
+        this.mail = mail;
         System.out.println(meldung);
         System.out.println(translator.translate("Constructor von Demo"));
     }
@@ -45,5 +48,6 @@ public class Demo {
     private void init() {
         System.out.println(meldung);
         System.out.println(translator.translate("Postconstruct"));
+        System.out.println(mail);
     }
 }

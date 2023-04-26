@@ -1,6 +1,7 @@
 package de.atruvia.webapp.service.internal;
 
 import de.atruvia.webapp.persistence.repository.PersonenRepository;
+import de.atruvia.webapp.service.BlacklistService;
 import de.atruvia.webapp.service.PersonenService;
 import de.atruvia.webapp.service.PersonenServiceException;
 import de.atruvia.webapp.service.mapper.PersonMapper;
@@ -22,6 +23,7 @@ public class PersonenServiceImpl implements PersonenService {
 
     private final PersonenRepository repository;
     private final PersonMapper mapper;
+    private final List<String> antipathen;
 
     /*
         person == null -> PSE
@@ -39,44 +41,32 @@ public class PersonenServiceImpl implements PersonenService {
      */
     @Override
     public void anlegen(final Person person) throws PersonenServiceException {
+        pruefenUndSpeichern(person, "Fehler beim Anlegen");
+    }
+
+    private void pruefenUndSpeichern(final Person person, final String Fehler_beim_Anlegen) throws PersonenServiceException {
         try {
-            if(person == null)
+            if (person == null)
                 throw new PersonenServiceException("Person darf nicht null sein.");
 
-            if(person.getVorname() == null || person.getVorname().length() < 2)
+            if (person.getVorname() == null || person.getVorname().length() < 2)
                 throw new PersonenServiceException("Vorname zu kurz.");
 
-            if(person.getNachname() == null || person.getNachname().length() < 2)
+            if (person.getNachname() == null || person.getNachname().length() < 2)
                 throw new PersonenServiceException("Nachname zu kurz.");
 
-            if("Attila".equals(person.getVorname()))
+            if (antipathen.contains(person.getVorname()))
                 throw new PersonenServiceException("Unerwuenschte Person");
 
             repository.save(mapper.convert(person));
         } catch (RuntimeException e) {
-            throw new PersonenServiceException("Fehler beim Anlegen", e);
+            throw new PersonenServiceException(Fehler_beim_Anlegen, e);
         }
     }
 
     @Override
     public void aendern(final Person person) throws PersonenServiceException {
-        try {
-            if(person == null)
-                throw new PersonenServiceException("Person darf nicht null sein.");
-
-            if(person.getVorname() == null || person.getVorname().length() < 2)
-                throw new PersonenServiceException("Vorname zu kurz.");
-
-            if(person.getNachname() == null || person.getNachname().length() < 2)
-                throw new PersonenServiceException("Nachname zu kurz.");
-
-            if("Attila".equals(person.getVorname()))
-                throw new PersonenServiceException("Unerwuenschte Person");
-
-            repository.save(mapper.convert(person));
-        } catch (RuntimeException e) {
-            throw new PersonenServiceException("Fehler beim Aendern", e);
-        }
+        pruefenUndSpeichern(person, "Fehler beim Aendern");
     }
 
     @Override
