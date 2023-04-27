@@ -1,33 +1,23 @@
-package de.atruvia.webapp.service.internal;
+package de.atruvia.service.internal;
 
-import de.atruvia.webapp.aspects.Dozent;
-import de.atruvia.webapp.persistence.repository.PersonenRepository;
-import de.atruvia.webapp.service.BlacklistService;
-import de.atruvia.webapp.service.PersonenService;
-import de.atruvia.webapp.service.PersonenServiceException;
-import de.atruvia.webapp.service.mapper.PersonMapper;
-import de.atruvia.webapp.service.model.Person;
+
+import de.atruvia.service.BlacklistService;
+import de.atruvia.service.PersonenService;
+import de.atruvia.service.PersonenServiceException;
+import de.atruvia.service.model.Person;
+import de.atruvia.service.repository.PersonenRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
-@Dozent
-@Service
 @RequiredArgsConstructor
-@Transactional(rollbackFor = PersonenServiceException.class, propagation = Propagation.REQUIRED, isolation = Isolation.REPEATABLE_READ)
-
-
 public class PersonenServiceImpl implements PersonenService {
 
 
     private final PersonenRepository repository;
-    private final PersonMapper mapper;
-    private final List<String> antipathen;
+
+    private final BlacklistService blacklistService;
 
     /*
         person == null -> PSE
@@ -45,10 +35,16 @@ public class PersonenServiceImpl implements PersonenService {
      */
     @Override
     public void anlegen(final Person person) throws PersonenServiceException {
-        pruefenUndSpeichern(person, "Fehler beim Anlegen");
+        pruefenUndSpeichern(person);
     }
 
-    private void pruefenUndSpeichern(final Person person, final String Fehler_beim_Anlegen) throws PersonenServiceException {
+    @Override
+    public void aendern(final Person person) throws PersonenServiceException {
+        pruefenUndSpeichern(person);
+    }
+
+
+    private void pruefenUndSpeichern(final Person person) throws PersonenServiceException {
         try {
             if (person == null)
                 throw new PersonenServiceException("Person darf nicht null sein.");
@@ -59,19 +55,15 @@ public class PersonenServiceImpl implements PersonenService {
             if (person.getNachname() == null || person.getNachname().length() < 2)
                 throw new PersonenServiceException("Nachname zu kurz.");
 
-            if (antipathen.contains(person.getVorname()))
+            if (blacklistService.isBlacklisted(person))
                 throw new PersonenServiceException("Unerwuenschte Person");
 
-            repository.save(mapper.convert(person));
+            repository.save(person);
         } catch (RuntimeException e) {
-            throw new PersonenServiceException(Fehler_beim_Anlegen, e);
+            throw new PersonenServiceException("Fehler beim Speichern", e);
         }
     }
 
-    @Override
-    public void aendern(final Person person) throws PersonenServiceException {
-        pruefenUndSpeichern(person, "Fehler beim Aendern");
-    }
 
     @Override
     public boolean loesche(String id) throws PersonenServiceException {
@@ -87,11 +79,11 @@ public class PersonenServiceImpl implements PersonenService {
     }
 
     // Select * from customers with ur
-    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+
     @Override
     public Optional<Person> findeNachId(String id) throws PersonenServiceException {
         try {
-            return repository.findById(id).map(mapper::convert);
+            return repository.findById(id);
         } catch (RuntimeException e) {
             throw new PersonenServiceException(e);
         }
@@ -100,7 +92,7 @@ public class PersonenServiceImpl implements PersonenService {
     @Override
     public Iterable<Person> findeAlle() throws PersonenServiceException {
         try {
-            return mapper.convert(repository.findAll());
+            return repository.findAll();
         } catch (RuntimeException e) {
             throw new PersonenServiceException(e);
         }

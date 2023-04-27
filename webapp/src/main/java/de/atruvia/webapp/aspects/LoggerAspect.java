@@ -13,7 +13,10 @@ import org.springframework.stereotype.Component;
 public class LoggerAspect {
 
 
-    @Before(value ="execution(public * de.atruvia.webapp.presentation.controller.PersonenCommandController.*(..))")
+
+    //@Before(value ="Pointcuts.restControllerMethods()")
+
+    @Before(value ="Pointcuts.dozentMethods()")
     public void logAdvice(JoinPoint joinPoint){
 
         log.warn("####### Log advice #######");
@@ -28,11 +31,12 @@ public class LoggerAspect {
 
     @AfterThrowing(value ="execution(public * de.atruvia.webapp.presentation.controller.PersonenQueryController.*(..))", throwing = "ex")
     public void afterThrowing(JoinPoint joinPoint, Throwable ex) {
-        System.out.println(ex);
+        System.out.println("-----------------------");
+       log.error("{}",ex);
     }
 
 
-    @Around(value ="execution(public * de.atruvia.webapp.presentation.controller.PersonenCommandController.*(..))")
+    @Around(value ="Pointcuts.personenControllerMethods()")
     public Object around(ProceedingJoinPoint joinPoint) throws Throwable {
 
         return joinPoint.proceed();
